@@ -1,95 +1,66 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+import { SlideShow } from "@/components/SlideShow";
+import { slideShowItems } from "@/constants/testData";
+import { Image, Spacer } from "@nextui-org/react";
+import { Brand } from "@/api/masterData/models";
+import { Heading } from "@/components/Heading";
+import { ProductVerticalCarousel } from "@/components/Product/VerticalCarousel";
+import { useGetAllBrand } from "@/api/masterData/hooks/brand/useGetAllBrand";
 
 export default function Home() {
+  const { data: brandList } = useGetAllBrand();
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
+    <>
+      <SlideShow items={slideShowItems} />
+      <Spacer y={4} />
+      <section className={"mt-4"}>
+        <Heading className={"text-2xl mb-2"}>Thương hiệu</Heading>
+        <div className={"flex flex-col md:flex-row gap-4 w-full"}>
+          <div className={"md:w-1/2 w-full relative"}>
             <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+              src={
+                "https://theme.hstatic.net/1000340570/1000964732/14/banner_brand_image_section_01.jpg?v=2783"
+              }
+              alt={"Brand"}
+              height={" h-[300px]"}
+              width={"full"}
+              className={"rounded-md"}
             />
-          </a>
+          </div>
+
+          <div
+            className={
+              "grid grid-rows-3 grid-cols-3 md:max-w-[50%] max-w-none relative rounded-md"
+            }
+          >
+            {brandList?.slice(0, 9).map((item: Brand) => (
+              <div key={"Brand" + item.id} className={"relative w-full h-full"}>
+                <Image
+                  src={item.imageUrl}
+                  alt={item.name}
+                  className={"border-1 aspect-2/1"}
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <section className={"mt-4"}>
+        <Heading className={"text-2xl mb-2"}>Hot Sale</Heading>
+        <ProductVerticalCarousel />
+      </section>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+      <section className={"mt-4"}>
+        <Heading className={"text-2xl mb-2"}>Hàng mới</Heading>
+        <ProductVerticalCarousel />
+      </section>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      <section className={"mt-4"}>
+        <Heading className={"text-2xl mb-2 text-orange-400"}>Ưu đãi</Heading>
+        <ProductVerticalCarousel />
+      </section>
+    </>
+  );
 }
