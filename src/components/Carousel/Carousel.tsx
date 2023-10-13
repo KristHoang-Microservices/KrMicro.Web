@@ -1,16 +1,18 @@
 import { ReactElement, useEffect, useState } from "react";
 import { useWindowSize } from "@/hooks";
 import { PagedList } from "@/models/pagedList.model";
-import { Pagination } from "@nextui-org/react";
+import { Pagination, Spinner } from "@nextui-org/react";
 
 export interface CarouselProps<T> {
   items: T[];
-  renderItems: (item: T, index: number) => ReactElement;
+  renderItems: (item: T, index: number, isLoading: boolean) => ReactElement;
+  isLoading?: boolean;
 }
 
 export function Carousel<T>({
   items,
   renderItems,
+  isLoading = false,
 }: CarouselProps<T>): ReactElement {
   const windowSize = useWindowSize();
   const pageSize: number =
@@ -49,16 +51,25 @@ export function Carousel<T>({
     }));
   }
 
-  console.log(page);
-
   return (
     <div className={"relative"}>
+      {isLoading && (
+        <div
+          className={
+            "w-full min-h-[350px] flex justify-center items-center transition-all"
+          }
+        >
+          <Spinner size={"lg"} hidden={!isLoading}></Spinner>
+        </div>
+      )}
       <div
         className={
-          "w-full relative grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2"
+          "w-full relative grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-6"
         }
       >
-        {page.listData.map(renderItems)}
+        {page.listData.map((data: T, index) =>
+          renderItems(data, index, isLoading),
+        )}
       </div>
       <div className={"font-bold mt-4 flex justify-end"}>
         {page.totalPage > 0 && (

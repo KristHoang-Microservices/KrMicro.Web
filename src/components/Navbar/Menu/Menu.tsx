@@ -54,14 +54,16 @@ export function Menu(): ReactElement {
           className={"sm:hidden"}
         />
         <NavbarBrand>
-          <Image src={Logo} alt={"August Perfume"} height={"52"} />
-          <p
-            className={
-              "font-bold text-xl ml-2 uppercase " + accentFont.className
-            }
-          >
-            August Perfume
-          </p>
+          <Link href={"/"}>
+            <Image src={Logo} alt={"August Perfume"} height={"52"} />
+            <p
+              className={
+                "font-bold text-xl ml-2 uppercase " + accentFont.className
+              }
+            >
+              August Perfume
+            </p>
+          </Link>
         </NavbarBrand>
       </NavbarContent>
       <NavbarContent justify={"end"}>

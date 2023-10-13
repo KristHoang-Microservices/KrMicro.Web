@@ -19,11 +19,15 @@ export default function RootLayout({ children }: { children: ReactElement }) {
         <title>August Perfume</title>
       </head>
       <body className={customFont.className}>
-        <Navigation />
         <Providers>
-          <PageLayout>{children}</PageLayout>
+          <main>
+            <Navigation />
+            <PageLayout>
+              {children}
+              <Footer />
+            </PageLayout>
+          </main>
         </Providers>
-        <Footer />
       </body>
     </html>
   );
