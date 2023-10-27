@@ -64,7 +64,7 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
             <Heading>Nhóm hương</Heading>
             <div className={"flex flex-wrap gap-1 mt-1"}>
               {data?.fragranceDescription
-                .split(";")
+                .split(",")
                 .map((des: string, index) => (
                   <Chip key={index} variant={"bordered"}>
                     {des}
@@ -106,7 +106,7 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
                   {(data?.price ?? 500_000 - 10_000).toLocaleString()} đ
                 </p>
                 <Heading className={"text-7xl text-accent"}>
-                  {data?.price.toLocaleString()} đ
+                  {(data?.price ?? 500_000 - 10_000).toLocaleString()} đ
                 </Heading>
               </div>
               <div className={"flex gap-2 "}>

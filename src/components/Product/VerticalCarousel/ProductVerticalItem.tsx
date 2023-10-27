@@ -50,7 +50,7 @@ export function ProductVerticalItem({
           </Skeleton>
           <Skeleton isLoaded={!isLoading} className={"rounded-sm"}>
             <p className={"text-accent font-bold text-center text-sm"}>
-              {product.price.toLocaleString()} VND
+              {/*{product.price.toLocaleString() ?? ""} VND*/}
             </p>
           </Skeleton>
         </div>
