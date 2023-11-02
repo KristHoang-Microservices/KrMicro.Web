@@ -12,6 +12,8 @@ export function ProductVerticalItem({
   product,
   isLoading,
 }: Props): ReactElement {
+  const productSizes = product.productSizes.sort((a, b) => a.price - b.price);
+
   return (
     <Link href={"/products/" + product.id}>
       <div
@@ -20,7 +22,7 @@ export function ProductVerticalItem({
         }
       >
         <div>
-          <Skeleton className={"rounded-sm"} isLoaded={!isLoading}>
+          <Skeleton className={"rounded-md"} isLoaded={!isLoading}>
             <Image
               src={product.imageUrls}
               alt={`${product.id}`}
@@ -46,11 +48,14 @@ export function ProductVerticalItem({
         </div>
         <div>
           <Skeleton className={"rounded-sm"} isLoaded={!isLoading}>
-            <p className={"my-2 text-sm text-center"}>3 sizes</p>
+            <p className={"my-2 text-sm text-center"}>
+              {productSizes.length} kích thước
+            </p>
           </Skeleton>
           <Skeleton isLoaded={!isLoading} className={"rounded-sm"}>
             <p className={"text-accent font-bold text-center text-sm"}>
-              {/*{product.price.toLocaleString() ?? ""} VND*/}
+              {productSizes[0].price.toLocaleString()} VND -{" "}
+              {productSizes[productSizes.length - 1].price.toLocaleString()} VND
             </p>
           </Skeleton>
         </div>

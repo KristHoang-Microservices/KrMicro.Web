@@ -7,6 +7,10 @@ import { useGetDetailProduct } from "@/api/masterData/hooks/product/useGetDetail
 import { Chip } from "@nextui-org/chip";
 import { Link } from "@nextui-org/link";
 import { ProductVerticalCarousel } from "@/components/Product/VerticalCarousel";
+import { ProductSize } from "@/api/masterData/models";
+import toast from "react-hot-toast";
+import { useAppDispatch } from "@/store/hooks";
+import { cart } from "@/store/slices/cartStore.slice";
 
 interface PageProps {
   params: {
@@ -16,8 +20,10 @@ interface PageProps {
 
 export default function ProductDetailPage({ params }: PageProps): ReactElement {
   const router = useRouter();
-  const { data, isLoading } = useGetDetailProduct({ id: params.id });
 
+  const dispatch = useAppDispatch();
+
+  const { data, isLoading } = useGetDetailProduct({ id: params.id });
   const [sizeSelected, setSize] = useState<number>(0);
 
   return (
@@ -52,15 +58,11 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
                 >
                   Trở lại
                 </Button>
-                <Heading>Nước hoa {data?.category.name}</Heading>
+                <Heading>Nước hoa {data?.category?.name}</Heading>
               </div>
-              <Heading className={""}>{data?.brand.name}</Heading>
+              <Heading className={""}>{data?.brand?.name}</Heading>
               <Heading className={"mb-6 text-5xl w-2/3"}>{data?.name}</Heading>
             </div>
-            <Heading>Mô tả</Heading>
-            <p className={"text-justify text-default-500 mb-6"}>
-              {data?.description}
-            </p>
             <Heading>Nhóm hương</Heading>
             <div className={"flex flex-wrap gap-1 mt-1"}>
               {data?.fragranceDescription
@@ -81,7 +83,7 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
             </div>
             <Heading className={"mt-6"}>Kích thước</Heading>
             <div className={"flex flex-wrap gap-1 mt-1"}>
-              {["10ml", "50ml", "100ml"].map((des: string, index: number) => (
+              {data?.productSizes.map((ps: ProductSize, index: number) => (
                 <Chip
                   key={index}
                   variant={"bordered"}
@@ -92,7 +94,7 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
                   }`}
                   size={"lg"}
                 >
-                  {des}
+                  {ps?.size.sizeCode}
                 </Chip>
               ))}
             </div>
@@ -103,10 +105,16 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
             >
               <div>
                 <p className={"mt-6 text-default-400 line-through"}>
-                  {(data?.price ?? 500_000 - 10_000).toLocaleString()} đ
+                  {(
+                    data?.productSizes?.at(sizeSelected)?.price ?? 0
+                  ).toLocaleString()}{" "}
+                  đ
                 </p>
                 <Heading className={"text-7xl text-accent"}>
-                  {(data?.price ?? 500_000 - 10_000).toLocaleString()} đ
+                  {(
+                    data?.productSizes?.at(sizeSelected)?.price ?? 0
+                  ).toLocaleString()}{" "}
+                  đ
                 </Heading>
               </div>
               <div className={"flex gap-2 "}>
@@ -115,6 +123,21 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
                   color={"primary"}
                   size={"lg"}
                   className={"text-md"}
+                  onClick={() => {
+                    dispatch(
+                      cart.actions.insert({
+                        productId: params.id,
+                        sizeCode:
+                          data?.productSizes?.at(sizeSelected)?.size.sizeCode ??
+                          "",
+                        amount: 1,
+                        product: data,
+                        size: data?.productSizes[sizeSelected]?.size,
+                        price: data?.productSizes[sizeSelected]?.price ?? 0,
+                      }),
+                    );
+                    toast.success("Thêm vào giỏ hàng gồi á!");
+                  }}
                 >
                   Thêm vào giỏ
                 </Button>
@@ -163,10 +186,20 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
                   }
                 >
                   <Chip variant={"solid"} className={"bg-white"}>
-                    <b>Size</b> 10ml | 50ml | 100ml
+                    <b>Size</b>{" "}
+                    {data?.productSizes.map(
+                      (ps, index) =>
+                        ps.size.sizeCode +
+                        (index !== data?.productSizes.length - 1 ? " | " : ""),
+                    )}
                   </Chip>
                   <Chip variant={"solid"} className={"bg-white"}>
-                    <b>SL Kho</b> 100 | 50 | 123
+                    <b>SL Kho</b>{" "}
+                    {data?.productSizes.map(
+                      (ps, index) =>
+                        ps.stock +
+                        (index !== data?.productSizes.length - 1 ? " | " : ""),
+                    )}
                   </Chip>
                   <Chip variant={"solid"} className={"bg-white"}>
                     <b className={"text-green-600"}>Đã bán</b> 32056
@@ -185,6 +218,10 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
             </div>
           </div>
         </div>
+        <Heading>Mô tả</Heading>
+        <p className={"text-justify text-default-500 mb-6"}>
+          {data?.description}
+        </p>
       </Skeleton>
       <section className={"my-8"}>
         <div className={"flex gap-2 justify-between"}>

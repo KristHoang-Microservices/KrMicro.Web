@@ -1,23 +1,21 @@
-import { Brand } from "@/api/masterData/models/brand.model";
-import { Category } from "@/api/masterData/models/category.model";
+import { Brand, Category, ProductSize } from "../models";
+import { Status } from "@/models";
 
 export interface Product {
   id: number;
   name: string;
-  price: number;
-
   brandId: number;
   brand: Brand;
   categoryId: number;
   category: Category;
-
   importFrom: string;
-  releaseYear: number;
-
+  releaseYear: string;
   imageUrls: string;
   description: string;
   style: string;
   fragranceDescription: string;
+  productSizes: ProductSize[];
+  status: Status;
 
-  stock: number;
+  [index: string]: string | number | Brand | Category | unknown[];
 }

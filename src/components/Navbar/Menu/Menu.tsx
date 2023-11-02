@@ -15,14 +15,9 @@ import Logo from "@/assets/logo-august.png";
 import { menuList, smMenuList } from "@/constants/menuList";
 import { MenuModel } from "@/components/Navbar/models";
 import { Link } from "@nextui-org/link";
-import {
-  CiDeliveryTruck,
-  CiSearch,
-  CiShoppingBasket,
-  CiUser,
-} from "react-icons/ci";
-import { Badge } from "@nextui-org/badge";
+import { CiDeliveryTruck, CiSearch, CiUser } from "react-icons/ci";
 import { accentFont } from "@/constants";
+import { Cart } from "../../Cart";
 
 export function Menu(): ReactElement {
   const [isMenuOpen, setIsMenuOpen]: [
@@ -67,7 +62,7 @@ export function Menu(): ReactElement {
         </NavbarBrand>
       </NavbarContent>
       <NavbarContent justify={"end"}>
-        <div className={"hidden sm:flex gap-4"}>
+        <div className={"hidden sm:flex gap-4 relative"}>
           <NavbarItem className={"cursor-pointer text-2xl"}>
             <CiSearch />
           </NavbarItem>
@@ -77,12 +72,8 @@ export function Menu(): ReactElement {
           <NavbarItem className={"cursor-pointer text-2xl"}>
             <CiDeliveryTruck />
           </NavbarItem>
+          <Cart />
         </div>
-        <Badge content={""}>
-          <NavbarItem className={"cursor-pointer text-2xl"}>
-            <CiShoppingBasket />
-          </NavbarItem>
-        </Badge>
       </NavbarContent>
       <NavbarMenu className={"pt-5"}>
         {menuList.map((item: MenuModel) => (

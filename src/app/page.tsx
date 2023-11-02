@@ -35,7 +35,7 @@ export default function Home() {
 
           <div
             className={
-              "grid grid-rows-3 grid-cols-3 md:max-w-[50%] max-w-none relative rounded-md gap-2"
+              "grid grid-rows-3 grid-cols-3 md:w-[50%] relative rounded-md gap-2"
             }
           >
             {brandList?.slice(0, 9).map((item: Brand) => (
@@ -44,11 +44,17 @@ export default function Home() {
                 className={"rounded-md"}
                 isLoaded={!isLoading}
               >
-                <div className={"relative w-full h-full"}>
+                <div
+                  className={
+                    "relative w-full h-[110px] border-1 rounded-md flex justify-center items-center"
+                  }
+                >
                   <Image
                     src={item.imageUrl}
                     alt={item.name}
-                    className={"border-1 aspect-2/1"}
+                    className={
+                      " w-fit h-full scale-75 object-cover object-center"
+                    }
                   />
                 </div>
               </Skeleton>

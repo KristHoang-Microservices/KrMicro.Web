@@ -26,6 +26,7 @@ export function ProductFilter() {
           Áp dụng
         </Button>
       }
+      name={"Tất cả sản phẩm"}
     />
   );
 }

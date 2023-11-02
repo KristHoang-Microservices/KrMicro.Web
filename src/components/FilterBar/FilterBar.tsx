@@ -16,6 +16,7 @@ export interface FilterBarProps {
   onClose: () => void;
   onOpen: () => void;
   onOpenChange: (isOpen: boolean) => void;
+  name: string;
 }
 export function FilterBar({
   form,
@@ -24,9 +25,13 @@ export function FilterBar({
   onOpen,
   onClose,
   onOpenChange,
+  name,
 }: FilterBarProps): ReactElement {
   return (
-    <div className={"w-full px-4 py-2 rounded-full flex justify-end bg-white"}>
+    <div
+      className={"w-full px-4 py-2 rounded-full flex justify-between bg-white"}
+    >
+      <span className={"text-xl font-semibold"}>{name}</span>
       <Button onPress={onOpen} variant={"bordered"}>
         Bộ lọc
         <CiFilter className={"text-2xl"} />

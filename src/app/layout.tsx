@@ -6,6 +6,7 @@ import { Metadata } from "next";
 import { PageLayout } from "@/components/PageLayout";
 import { customFont } from "@/constants/";
 import { Footer } from "@/components/Footer/Footer";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "August Perfume",
@@ -24,6 +25,8 @@ export default function RootLayout({ children }: { children: ReactElement }) {
             <Navigation />
             <PageLayout>
               {children}
+
+              <Toaster position={"bottom-right"} />
               <Footer />
             </PageLayout>
           </main>
