@@ -1,3 +1,4 @@
+"use client";
 import { ReactElement } from "react";
 import { Menu } from "@/components/Navbar/Menu";
 import { accentFont } from "@/constants";

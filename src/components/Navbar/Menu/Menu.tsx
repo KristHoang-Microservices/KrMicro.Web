@@ -17,7 +17,7 @@ import { MenuModel } from "@/components/Navbar/models";
 import { Link } from "@nextui-org/link";
 import { CiDeliveryTruck, CiSearch, CiUser } from "react-icons/ci";
 import { accentFont } from "@/constants";
-import { Cart } from "../../Cart";
+import { Cart } from "@/components/Cart";
 
 export function Menu(): ReactElement {
   const [isMenuOpen, setIsMenuOpen]: [

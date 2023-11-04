@@ -6,7 +6,7 @@ import { RootState } from "@/store/store";
 
 const initialState: Cart = localStorageServices.get<Cart>(
   cartLocalStorageKey,
-) ?? { items: [] };
+) ?? { items: [], total: 0 };
 
 export const cart = createSlice({
   name: "cart",
@@ -29,6 +29,11 @@ export const cart = createSlice({
         state.items[existedIndex].amount++;
       }
 
+      state.total = state.items.reduce(
+        (val, item) => val + item.amount * item.price,
+        0,
+      );
+
       localStorageServices.set<Cart>(cartLocalStorageKey, state);
     },
     remove: (state, action: PayloadAction<CartItem>) => {
@@ -49,6 +54,10 @@ export const cart = createSlice({
       } else {
         state.items[existedIndex].amount--;
       }
+      state.total = state.items.reduce(
+        (val, item) => val + item.amount * item.price,
+        0,
+      );
       localStorageServices.set<Cart>(cartLocalStorageKey, state);
     },
     update: (state, action: PayloadAction<CartItem>) => {
@@ -57,8 +66,11 @@ export const cart = createSlice({
           i.productId === action.payload.productId &&
           i.sizeCode === action.payload.sizeCode,
       );
-
       state.items[index] = action.payload;
+      state.total = state.items.reduce(
+        (val, item) => val + item.amount * item.price,
+        0,
+      );
       localStorageServices.set<Cart>(cartLocalStorageKey, state);
     },
   },

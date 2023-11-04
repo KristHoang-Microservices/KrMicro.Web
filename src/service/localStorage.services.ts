@@ -1,17 +1,22 @@
+"use client";
 class LocalStorageServices {
   set<T>(key: string, value: T): void {
-    localStorage.setItem(key, JSON.stringify(value));
+    if (typeof window !== "undefined")
+      localStorage?.setItem(key, JSON.stringify(value));
   }
 
   get<T>(key: string): T | null {
-    const stringifiedValue: string | null = localStorage.getItem(key);
-    if (stringifiedValue === null) return null;
+    if (typeof window !== "undefined") {
+      const stringifiedValue: string | null = localStorage?.getItem(key);
+      if (stringifiedValue === null) return null;
 
-    return JSON.parse(stringifiedValue) as T;
+      return JSON.parse(stringifiedValue) as T;
+    }
+    return null;
   }
 
   remove(key: string): void {
-    localStorage.removeItem(key);
+    if (typeof window !== "undefined") localStorage?.removeItem(key);
   }
 }
 
