@@ -113,6 +113,7 @@ export default function CartPage() {
               size={"lg"}
               color={"primary"}
               className={"my-6"}
+              onClick={() => router.push("/orders/pay")}
             >
               Thanh toán
             </Button>

@@ -1,4 +1,4 @@
-export * from "./detailResponse";
+export * from "./detailResponse.model";
 export * from "./listResponse.model";
 export * from "./messageResponse.model";
 

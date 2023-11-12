@@ -1,0 +1,293 @@
+"use client";
+import { Key, ReactElement, useEffect, useState } from "react";
+import { Button, Divider, Tab, Tabs } from "@nextui-org/react";
+import { accentFont, cartLocalStorageKey } from "@/constants";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { cartSelector, remove } from "@/store/slices/cartStore.slice";
+import { useRouter } from "next/navigation";
+import { ItemPayList } from "@/components/Pay/ItemList";
+import { Heading } from "@/components/Heading";
+import { useGetProfile } from "@/api/identity/hooks/customer";
+import {
+  useCreateDeliveryInformation,
+  useGetAllDeliveryInformation,
+} from "@/api/orders/hooks/deliveryInformation";
+import { useForm } from "react-hook-form";
+import { CreateDeliveryInformationRequest } from "@/api/orders/hooks/requests/deliveryInformation/createDeliveryInformation.request";
+import { Input, Textarea } from "@nextui-org/input";
+import { Card, CardBody } from "@nextui-org/card";
+import { createDeliveryInformationSchema } from "@/api/orders/validations";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useCreateOrder } from "@/api/orders/hooks/orders/useCreateOrder";
+import toast from "react-hot-toast";
+import { localStorageServices } from "@/service";
+
+export default function OrderPayPage(): ReactElement {
+  const cart = useAppSelector(cartSelector);
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (cart.items.length == 0) {
+      router.push("/");
+    }
+  }, [cart.items.length, router]);
+
+  const { data: customer } = useGetProfile();
+
+  const { data: deliveryInformationList } = useGetAllDeliveryInformation({
+    request: { customerId: customer?.id ?? -1 },
+  });
+
+  const { trigger: createDeliveryTrigger, isMutating: postingDelivery } =
+    useCreateDeliveryInformation();
+
+  const { trigger: createOrderTrigger, isMutating: postingOrder } =
+    useCreateOrder();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateDeliveryInformationRequest>({
+    resolver: yupResolver<CreateDeliveryInformationRequest>(
+      createDeliveryInformationSchema,
+    ),
+  });
+
+  const [paymentMethod, setPaymentMethod] = useState<number>(1);
+
+  const onSubmit = async (data: CreateDeliveryInformationRequest) => {
+    const informationPosted = await createDeliveryTrigger(data);
+
+    if (informationPosted !== null && informationPosted.isSuccess) {
+      const orderPlaced = await createOrderTrigger({
+        deliveryInformationId: informationPosted.data.id,
+        orderDetails: cart.items.map((item) => ({
+          productId: item.productId,
+          amount: item.amount,
+          sizeCode: item.sizeCode,
+        })),
+      });
+
+      if (orderPlaced !== null && orderPlaced.isSuccess) {
+        toast.success("Đã đặt hàng thành công!");
+        localStorageServices.remove(cartLocalStorageKey);
+        dispatch(remove);
+        router.push("/orders/pay/success");
+      }
+    }
+  };
+
+  return (
+    <div>
+      <div className={"flex gap-2 items-center w-full "}>
+        <div className={"flex flex-col md:flex-row gap-2 items-center"}>
+          <Button
+            variant={"bordered"}
+            className={"rounded-full mr-2"}
+            onPress={() => router.back()}
+          >
+            Trở lại
+          </Button>
+          <span className={"text-xl font-semibold"}>Thanh toán</span>
+        </div>
+      </div>
+
+      <div className={"md:grid-cols-8 grid grid-cols-1 gap-4"}>
+        <div className={"col-span-5"}>
+          <div>
+            <Heading className={"text-xl mt-6"}>Thông tin thanh toán</Heading>
+            {customer === undefined ? (
+              <p className={"text-sm"}>
+                Nhập thông tin giao hàng hoặc{" "}
+                <b
+                  className={"text-accent cursor-pointer"}
+                  onClick={() => router.push("/login")}
+                >
+                  Đăng nhập
+                </b>
+              </p>
+            ) : (
+              <>
+                <p className={"text-sm"}>Nhập thông tin giao hàng </p>
+                <p className={"my-6 font-semibold"}>Lựa chọn có sẳn</p>
+                <div
+                  className={
+                    "max-h-[150px] h-[150px] w-full overflow-y-auto p-2 flex gap-4 justify-start items-center"
+                  }
+                >
+                  {deliveryInformationList !== undefined &&
+                  deliveryInformationList?.length > 0 ? (
+                    <>
+                      {deliveryInformationList.map((item) => (
+                        <div
+                          className={
+                            "shadow h-full min-w-[300px] p-4 rounded-xl hover:scale-105 transition-all"
+                          }
+                          key={`DeliveryInformation${item.id}`}
+                        >
+                          <Heading className={"text-lg mb-4"}>
+                            {item.name}
+                          </Heading>
+                          <p>
+                            <b>Địa chỉ: </b>
+                            {item.fullAddress}
+                          </p>
+                          <p>
+                            <b>SĐT: </b>
+                            {item.phone}
+                          </p>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <>Chưa có thông tin sẳn</>
+                  )}
+                </div>
+                <p className={"my-2 font-semibold"}>Hoặc nhập thông tin mới</p>
+              </>
+            )}
+            <form
+              className={"my-8  grid-cols-2 grid gap-2"}
+              onSubmit={handleSubmit(onSubmit)}
+            >
+              <div className={"col-span-2 font-semibold"}>
+                <p>Thông tin cá nhân</p>
+              </div>
+              <div className={"col-span-1"}>
+                <Input
+                  {...register("customerName")}
+                  label={"Họ và tên"}
+                  labelPlacement={"outside"}
+                  placeholder={"Nhập họ và tên đầy đủ"}
+                  isRequired={true}
+                  className={"transition-all"}
+                  isInvalid={errors.customerName !== undefined}
+                  errorMessage={
+                    errors.customerName && errors.customerName?.message
+                  }
+                />
+              </div>
+              <div className={"col-span-1"}>
+                <Input
+                  {...register("phone")}
+                  label={"Số điện thoại"}
+                  labelPlacement={"outside"}
+                  placeholder={"Nhập số điện thoại"}
+                  isRequired={true}
+                  className={"transition-all"}
+                  isInvalid={errors.phone !== undefined}
+                  errorMessage={errors.phone && errors.phone?.message}
+                />
+              </div>
+              <div className={"col-span-2 font-semibold"}>
+                <p>Địa chỉ nhận hàng</p>
+              </div>
+              <div className={"col-span-2"}>
+                <Textarea
+                  {...register("fullAddress")}
+                  label={"Địa chỉ cụ thể"}
+                  labelPlacement={"outside"}
+                  placeholder={"Nhập địa chỉ nhận hàng cụ thể"}
+                  isRequired={true}
+                  className={"transition-all"}
+                  isInvalid={errors.fullAddress !== undefined}
+                  errorMessage={
+                    errors.fullAddress && errors.fullAddress?.message
+                  }
+                />
+              </div>
+              <div className={"col-span-2 font-semibold"}>
+                <p>Phương thức thanh toán</p>
+              </div>
+              <div className={"col-span-2"}>
+                <Tabs
+                  aria-label="Options"
+                  selectedKey={paymentMethod.toString()}
+                  onSelectionChange={(key: Key) =>
+                    setPaymentMethod(parseInt(key.toString()))
+                  }
+                >
+                  <Tab key="1" title="Tiền mặt">
+                    <Card shadow={"sm"}>
+                      <CardBody>
+                        Thanh toán tiền mặt sau khi nhận hàng hoặc thanh toán và
+                        lấy hàng trực tiếp tại các cửa hàng của August Perfume
+                      </CardBody>
+                    </Card>
+                  </Tab>
+                  <Tab key="2" title="Momo" isDisabled={true}>
+                    <Card shadow={"sm"}>
+                      <CardBody>
+                        Thanh toán thông qua dịch vụ Thanh toán trực tuyến Momo
+                      </CardBody>
+                    </Card>
+                  </Tab>
+                  <Tab key="4" title="Chuyển khoản" isDisabled={true}>
+                    <Card shadow={"sm"}>
+                      <CardBody>
+                        <p>Thanh toán thông qua chuyển khoản ngân hàng:</p>
+                        <p>Ngân hàng: Vietcombank (VCB)</p>
+                        <p>Người thụ hưởng: Võ Chí Khánh</p>
+                        <p>Tài khoản: 1019912984</p>
+                        <p>Nội dung chuyển khoản:</p>
+                        <p className={"font-semibold"}>APDH01 11132023</p>
+                      </CardBody>
+                    </Card>
+                  </Tab>
+                </Tabs>
+              </div>
+              <div className={"col-span-2 flex justify-end"}>
+                <Button
+                  type={"submit"}
+                  color={"primary"}
+                  isLoading={postingDelivery || postingOrder}
+                >
+                  Tiến hành tạo đơn
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div
+          className={
+            "col-span-3 rounded-md shadow h-fit p-4 flex-col flex gap-2 border-t-[10px] border-accent-600"
+          }
+        >
+          <ItemPayList />
+          <Divider />
+          <div className={"flex justify-between gap-2"}>
+            <p className={"uppercase"}>Tạm tính</p>
+            <p className={"font-semibold " + accentFont.className}>
+              {cart.total.toLocaleString()} đ
+            </p>
+          </div>
+          <div className={"flex justify-between gap-2"}>
+            <p className={"uppercase"}>Vận chuyển</p>
+            <p className={"font-semibold text-green " + accentFont.className}>
+              Miễn phí
+            </p>
+          </div>
+          <div className={"flex justify-between gap-2"}>
+            <p className={"uppercase"}>VAT 8%</p>
+            <p className={"font-semibold text-green " + accentFont.className}>
+              {(cart.total * 0.08).toLocaleString()} đ
+            </p>
+          </div>
+          <Divider className={"my-4"} />
+          <div className={"flex justify-between gap-2"}>
+            <p className={"uppercase text-xl"}>Tổng tiền</p>
+            <p
+              className={
+                "font-semibold text-green text-2xl " + accentFont.className
+              }
+            >
+              {(cart.total * 0.08 + cart.total).toLocaleString()} đ
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

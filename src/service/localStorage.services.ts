@@ -4,7 +4,6 @@ class LocalStorageServices {
     if (typeof window !== "undefined")
       localStorage?.setItem(key, JSON.stringify(value));
   }
-
   get<T>(key: string): T | null {
     if (typeof window !== "undefined") {
       const stringifiedValue: string | null = localStorage?.getItem(key);
@@ -14,7 +13,6 @@ class LocalStorageServices {
     }
     return null;
   }
-
   remove(key: string): void {
     if (typeof window !== "undefined") localStorage?.removeItem(key);
   }

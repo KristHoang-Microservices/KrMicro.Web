@@ -62,6 +62,7 @@ export function SlideShow({
   const paginate = useCallback(
     (newDirection: number) => {
       const nextChange: number = page + newDirection;
+
       setPage([nextChange === items.length ? 0 : nextChange, newDirection]);
     },
     [items.length, page],

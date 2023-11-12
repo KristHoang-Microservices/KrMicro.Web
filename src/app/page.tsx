@@ -21,13 +21,13 @@ export default function Home() {
           <Link href={"/category"}>Xem tất cả</Link>
         </div>
         <div className={"flex flex-col md:flex-row gap-4 w-full"}>
-          <div className={"md:w-1/2 w-full relative"}>
+          <div className={"md:w-1/2 w-full relative h-full"}>
             <Image
               src={
                 "https://theme.hstatic.net/1000340570/1000964732/14/banner_brand_image_section_01.jpg?v=2783"
               }
               alt={"Brand"}
-              height={" h-[300px]"}
+              height={"full"}
               width={"full"}
               className={"rounded-md"}
             />
@@ -38,7 +38,7 @@ export default function Home() {
               "grid grid-rows-3 grid-cols-3 md:w-[50%] relative rounded-md gap-2"
             }
           >
-            {brandList?.slice(0, 9).map((item: Brand) => (
+            {(brandList ?? Array(9)).slice(0, 9).map((item: Brand) => (
               <Skeleton
                 key={"Brand" + item.id}
                 className={"rounded-md"}
@@ -46,7 +46,7 @@ export default function Home() {
               >
                 <div
                   className={
-                    "relative w-full h-[110px] border-1 rounded-md flex justify-center items-center"
+                    "relative w-full h-[100px] border-1 rounded-md flex justify-center items-center"
                   }
                 >
                   <Image
