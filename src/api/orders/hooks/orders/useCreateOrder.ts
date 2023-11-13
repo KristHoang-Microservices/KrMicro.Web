@@ -5,7 +5,7 @@ import useSWRMutation from "swr/mutation";
 import toast from "react-hot-toast";
 import { Order } from "@/api/orders/models";
 import { DetailResponseModel } from "@/api/common/models";
-import { CreateOrderRequest } from "@/api/orders/hooks/requests/order/CreateOrder.request";
+import { CreateOrderRequest } from "@/api/orders/hooks/requests/order/createOrder.request";
 
 export function useCreateOrder() {
   return useSWRMutation(

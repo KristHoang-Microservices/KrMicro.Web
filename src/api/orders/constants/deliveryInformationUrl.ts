@@ -11,3 +11,6 @@ export const GET_DETAIL = (id: number) => deliveryInformationBase(`/${id}`);
 export const CREATE = deliveryInformationBase("");
 
 export const UPDATE = (id: number) => deliveryInformationBase(`/${id}`);
+
+export const UPDATE_STATUS = (id: number) =>
+  deliveryInformationBase(`/${id}/UpdateStatus`);

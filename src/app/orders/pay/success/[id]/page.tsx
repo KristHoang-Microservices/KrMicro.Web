@@ -6,7 +6,12 @@ import { Heading } from "@/components/Heading";
 import Confetti from "react-dom-confetti";
 import { confettiConfig } from "@/constants";
 
-export default function SuccessPaid() {
+interface PageProps {
+  params: {
+    id: number;
+  };
+}
+export default function SuccessPaid({ params: { id } }: PageProps) {
   const [pop, setPopConfetti] = useState<boolean>(false);
 
   useEffect(() => {
@@ -21,7 +26,7 @@ export default function SuccessPaid() {
     >
       <Confetti config={confettiConfig} active={pop} />
       <Image src={ConfettiIcon.src} alt={"Success"} width={"100px"} />
-      <Heading>Mã đơn hàng của bạn là #01</Heading>
+      <Heading>Mã đơn hàng của bạn là #{id}</Heading>
       <Heading className={"text-2xl text-accent"}>
         Đơn hàng của bạn đang được chuẩn bị
       </Heading>

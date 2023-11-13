@@ -1,6 +1,6 @@
 "use client";
 import { Key, ReactElement, useEffect, useState } from "react";
-import { Button, Divider, Tab, Tabs } from "@nextui-org/react";
+import { Button, Divider, Tab, Tabs, useDisclosure } from "@nextui-org/react";
 import { accentFont, cartLocalStorageKey } from "@/constants";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { cartSelector, remove } from "@/store/slices/cartStore.slice";
@@ -16,11 +16,14 @@ import { useForm } from "react-hook-form";
 import { CreateDeliveryInformationRequest } from "@/api/orders/hooks/requests/deliveryInformation/createDeliveryInformation.request";
 import { Input, Textarea } from "@nextui-org/input";
 import { Card, CardBody } from "@nextui-org/card";
-import { createDeliveryInformationSchema } from "@/api/orders/validations";
+import { createDeliveryInformationSchema } from "@/api/orders/validations/deliveryInformation";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useCreateOrder } from "@/api/orders/hooks/orders/useCreateOrder";
 import toast from "react-hot-toast";
 import { localStorageServices } from "@/service";
+import { DeliveryInformationForm } from "@/components/DeliveryInformation";
+import { HiCheck, HiPencilAlt, HiX } from "react-icons/hi";
+import { DeliveryInformation } from "@/api/orders/models";
 
 export default function OrderPayPage(): ReactElement {
   const cart = useAppSelector(cartSelector);
@@ -49,6 +52,8 @@ export default function OrderPayPage(): ReactElement {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
+    setValue,
   } = useForm<CreateDeliveryInformationRequest>({
     resolver: yupResolver<CreateDeliveryInformationRequest>(
       createDeliveryInformationSchema,
@@ -58,26 +63,35 @@ export default function OrderPayPage(): ReactElement {
   const [paymentMethod, setPaymentMethod] = useState<number>(1);
 
   const onSubmit = async (data: CreateDeliveryInformationRequest) => {
-    const informationPosted = await createDeliveryTrigger(data);
-
-    if (informationPosted !== null && informationPosted.isSuccess) {
-      const orderPlaced = await createOrderTrigger({
-        deliveryInformationId: informationPosted.data.id,
-        orderDetails: cart.items.map((item) => ({
-          productId: item.productId,
-          amount: item.amount,
-          sizeCode: item.sizeCode,
-        })),
-      });
-
-      if (orderPlaced !== null && orderPlaced.isSuccess) {
-        toast.success("Đã đặt hàng thành công!");
-        localStorageServices.remove(cartLocalStorageKey);
-        dispatch(remove);
-        router.push("/orders/pay/success");
+    let informationId = deliveryData?.id ?? -1;
+    if (!isUsingSaved) {
+      const informationPosted = await createDeliveryTrigger(data);
+      if (informationPosted !== null && informationPosted.isSuccess) {
+        informationId = informationPosted.data.id;
+      } else {
+        return;
       }
     }
+    const orderPlaced = await createOrderTrigger({
+      deliveryInformationId: informationId,
+      orderDetails: cart.items.map((item) => ({
+        productId: item.productId,
+        amount: item.amount,
+        sizeCode: item.sizeCode,
+      })),
+    });
+    if (orderPlaced !== null && orderPlaced.isSuccess) {
+      toast.success("Đã đặt hàng thành công!");
+      localStorageServices.remove(cartLocalStorageKey);
+      dispatch(remove);
+      router.push("/orders/pay/success/" + orderPlaced.data.id, {});
+    }
   };
+
+  const { isOpen, onOpenChange, onOpen } = useDisclosure();
+  const [deliveryData, setDeliveryData] = useState<DeliveryInformation>();
+
+  const [isUsingSaved, setIsUsingSaved] = useState<boolean>(false);
 
   return (
     <div>
@@ -111,33 +125,103 @@ export default function OrderPayPage(): ReactElement {
             ) : (
               <>
                 <p className={"text-sm"}>Nhập thông tin giao hàng </p>
-                <p className={"my-6 font-semibold"}>Lựa chọn có sẳn</p>
+                <div className={"flex justify-between items-center"}>
+                  <p className={"my-6 font-semibold"}>Lựa chọn có sẳn</p>
+                  <Button
+                    variant={"bordered"}
+                    size={"sm"}
+                    onClick={() => {
+                      setDeliveryData(undefined);
+                      onOpen();
+                    }}
+                  >
+                    Thêm địa chỉ
+                  </Button>
+                </div>
                 <div
                   className={
-                    "max-h-[150px] h-[150px] w-full overflow-y-auto p-2 flex gap-4 justify-start items-center"
+                    "relative max-h-[175px] h-[175px] w-full overflow-y-auto p-2 flex gap-4 justify-start items-center"
                   }
                 >
+                  <DeliveryInformationForm
+                    isOpen={isOpen}
+                    onOpenChange={onOpenChange}
+                    customerId={customer.id}
+                    data={deliveryData}
+                  />
                   {deliveryInformationList !== undefined &&
                   deliveryInformationList?.length > 0 ? (
                     <>
                       {deliveryInformationList.map((item) => (
                         <div
                           className={
-                            "shadow h-full min-w-[300px] p-4 rounded-xl hover:scale-105 transition-all"
+                            "relative shadow h-full min-w-[350px] p-4 rounded-xl hover:scale-105 transition-all"
                           }
                           key={`DeliveryInformation${item.id}`}
                         >
-                          <Heading className={"text-lg mb-4"}>
+                          <div
+                            className={"absolute top-2 right-2 cursor-pointer"}
+                            onClick={() => {
+                              setDeliveryData(item);
+                              onOpen();
+                            }}
+                          >
+                            <HiPencilAlt />
+                          </div>
+                          <Heading className={"text-md mb-4"}>
                             {item.name}
                           </Heading>
-                          <p>
+                          <p className={"text-sm w-[75%]"}>
                             <b>Địa chỉ: </b>
                             {item.fullAddress}
                           </p>
-                          <p>
+                          <p className={"text-sm w-[75%]"}>
                             <b>SĐT: </b>
                             {item.phone}
                           </p>
+                          <Button
+                            className={
+                              "absolute bottom-0 right-0 cursor-pointer transition-all"
+                            }
+                            isIconOnly={
+                              deliveryData?.id === item.id && isUsingSaved
+                            }
+                            variant={
+                              deliveryData?.id === item.id && isUsingSaved
+                                ? "solid"
+                                : "ghost"
+                            }
+                            color={
+                              deliveryData?.id === item.id && isUsingSaved
+                                ? "primary"
+                                : "default"
+                            }
+                            onClick={() => {
+                              if (
+                                deliveryData?.id !== item.id &&
+                                !isUsingSaved
+                              ) {
+                                setDeliveryData(item);
+                                setIsUsingSaved(true);
+                                reset({ ...item }, { keepDirty: true });
+                              } else {
+                                setDeliveryData(undefined);
+                                setIsUsingSaved(false);
+                                // @ts-ignore
+                                setValue();
+                              }
+                            }}
+                          >
+                            {deliveryData?.id === item.id && isUsingSaved ? (
+                              <>
+                                <HiX />
+                              </>
+                            ) : (
+                              <>
+                                <HiCheck /> Dùng
+                              </>
+                            )}
+                          </Button>
                         </div>
                       ))}
                     </>
@@ -167,6 +251,7 @@ export default function OrderPayPage(): ReactElement {
                   errorMessage={
                     errors.customerName && errors.customerName?.message
                   }
+                  isDisabled={isUsingSaved}
                 />
               </div>
               <div className={"col-span-1"}>
@@ -179,6 +264,7 @@ export default function OrderPayPage(): ReactElement {
                   className={"transition-all"}
                   isInvalid={errors.phone !== undefined}
                   errorMessage={errors.phone && errors.phone?.message}
+                  isDisabled={isUsingSaved}
                 />
               </div>
               <div className={"col-span-2 font-semibold"}>
@@ -196,6 +282,7 @@ export default function OrderPayPage(): ReactElement {
                   errorMessage={
                     errors.fullAddress && errors.fullAddress?.message
                   }
+                  isDisabled={isUsingSaved}
                 />
               </div>
               <div className={"col-span-2 font-semibold"}>

@@ -47,7 +47,7 @@ export function CartItemRender({ item, index }: CartItemProps): ReactElement {
           </Button>
           <Input
             variant={"underlined"}
-            className={"flex-grow content-center"}
+            className={"w-[75px] content-center"}
             value={`${item.amount}`}
             type={"number"}
             onChange={(e) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Button } from "@nextui-org/react";
+import { Button, Image } from "@nextui-org/react";
 import { useLogin, useSignup } from "@/api/identity/hooks/account";
 import { LoginRequest, SignupRequest } from "@/api/identity/requests";
 import { useForm } from "react-hook-form";
@@ -12,6 +12,8 @@ import { localStorageServices } from "@/service";
 import { accessTokenLocalStorageKey } from "@/constants";
 import { LoginResponse, SignupResponse } from "@/api/identity/responses";
 import toast from "react-hot-toast";
+import Logo from "@/assets/logo-august.png";
+import { Link } from "@nextui-org/link";
 
 const backgroundUrl =
   "https://res.cloudinary.com/dbnqb8z0t/image/upload/f_auto,q_auto/v1/Public/z0ljwl5zgrytx2nwpuao";
@@ -60,6 +62,9 @@ export default function LoginPage() {
           "rounded-md bg-white h-full w-full md:w-[50%] md:max-w-[400px] p-6 flex flex-col justify-center gap-4 items-center"
         }
       >
+        <Link href={"/"}>
+          <Image src={Logo.src} alt={""} width={125} />
+        </Link>
         <div className={"w-full"}>
           <Heading className={"text-center mb-4 text-xl"}>
             {isLogin ? "Đăng nhập" : "Đăng kí"}

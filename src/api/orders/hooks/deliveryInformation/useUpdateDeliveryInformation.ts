@@ -1,21 +1,27 @@
 "use client";
 import { deliveryInformationUrl } from "@/api/orders/constants";
-import { postDefaultFetcher } from "@/api/common/fetchers";
+import { patchDefaultFetcher } from "@/api/common/fetchers";
 import useSWRMutation from "swr/mutation";
 import toast from "react-hot-toast";
 import { CreateDeliveryInformationRequest } from "@/api/orders/hooks/requests/deliveryInformation/createDeliveryInformation.request";
 import { DeliveryInformation } from "@/api/orders/models";
 import { DetailResponseModel } from "@/api/common/models";
-import { useGetAllDeliveryInformation } from "@/api/orders/hooks/deliveryInformation";
+import { useGetAllDeliveryInformation } from "@/api/orders/hooks/deliveryInformation/useGetAllDeliveryInformation";
 
-export function useCreateDeliveryInformation(customerId?: number) {
+export function useUpdateDeliveryInformation({
+  id,
+  customerId,
+}: {
+  id: number;
+  customerId?: number;
+}) {
   const { mutate } = useGetAllDeliveryInformation({
     request: { customerId: customerId ?? -1 },
   });
 
   return useSWRMutation(
-    deliveryInformationUrl.CREATE,
-    postDefaultFetcher<
+    deliveryInformationUrl.UPDATE(id),
+    patchDefaultFetcher<
       CreateDeliveryInformationRequest,
       DetailResponseModel<DeliveryInformation>
     >,

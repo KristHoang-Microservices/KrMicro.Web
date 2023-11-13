@@ -1,4 +1,5 @@
 export enum Status {
-  Disable = 0,
   Available = 1,
+  Disable = 0,
+  Deleted = 2,
 }
