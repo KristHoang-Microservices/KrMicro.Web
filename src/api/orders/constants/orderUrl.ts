@@ -7,6 +7,7 @@ const orderBase = (path?: string) => ordersBase("/Order" + path ?? "");
 
 export const GET_DETAIL = (id: number) => orderBase(`/${id}`);
 
-export const CREATE = orderBase("/");
+export const CREATE = orderBase("");
+export const CHECK = orderBase("/CheckOrder");
 
 export const UPDATE = (id: number) => orderBase(`/${id}`);

@@ -8,32 +8,40 @@ import { HiMinus, HiPlus } from "react-icons/hi";
 import { Input } from "@nextui-org/input";
 import { useAppDispatch } from "@/store/hooks";
 import { cart } from "@/store/slices/cartStore.slice";
+import { Badge } from "@nextui-org/badge";
 
 interface CartItemProps {
   item: CartItem;
   index: number;
+  isLacking?: boolean;
 }
 
-export function CartItemRender({ item, index }: CartItemProps): ReactElement {
+export function CartItemRender({
+  item,
+  index,
+  isLacking = false,
+}: CartItemProps): ReactElement {
   const { data: product } = useGetDetailProduct({ id: item.productId });
   const dispatch = useAppDispatch();
-
+  console.log(isLacking);
   return (
     <div className={"grid grid-cols-8 gap-2"}>
       <div className={"col-span-4"}>
-        <User
-          name={product?.name}
-          avatarProps={{
-            radius: "sm",
-            className: "w-[75px] h-[75px] border-2",
-            src: product?.imageUrls,
-          }}
-          description={item.sizeCode}
-          classNames={{
-            name: "md:text-md text-sm  line-clamp-2 " + accentFont.className,
-            description: "text-md",
-          }}
-        />
+        <Badge isInvisible={!isLacking} content={"Hết hàng"} color={"danger"}>
+          <User
+            name={product?.name}
+            avatarProps={{
+              radius: "sm",
+              className: "w-[75px] h-[75px] border-2",
+              src: product?.imageUrls,
+            }}
+            description={item.sizeCode}
+            classNames={{
+              name: "md:text-md text-sm  line-clamp-2 " + accentFont.className,
+              description: "text-md",
+            }}
+          />
+        </Badge>
       </div>
       <div className={"flex justify-center items-center gap-2 col-span-2"}>
         <div className={"flex flex-row gap-2 items-between"}>
@@ -75,6 +83,7 @@ export function CartItemRender({ item, index }: CartItemProps): ReactElement {
             isIconOnly
             variant={"bordered"}
             size={"sm"}
+            isDisabled={isLacking}
             onClick={() => dispatch(cart.actions.insert(item))}
           >
             <HiPlus />

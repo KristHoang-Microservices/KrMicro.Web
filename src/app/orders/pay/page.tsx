@@ -74,6 +74,7 @@ export default function OrderPayPage(): ReactElement {
     }
     const orderPlaced = await createOrderTrigger({
       deliveryInformationId: informationId,
+      paymentMethodId: paymentMethod,
       orderDetails: cart.items.map((item) => ({
         productId: item.productId,
         amount: item.amount,
@@ -181,7 +182,7 @@ export default function OrderPayPage(): ReactElement {
                           </p>
                           <Button
                             className={
-                              "absolute bottom-0 right-0 cursor-pointer transition-all"
+                              "absolute bottom-2 right-2 cursor-pointer transition-all"
                             }
                             isIconOnly={
                               deliveryData?.id === item.id && isUsingSaved
@@ -311,7 +312,7 @@ export default function OrderPayPage(): ReactElement {
                       </CardBody>
                     </Card>
                   </Tab>
-                  <Tab key="4" title="Chuyển khoản" isDisabled={true}>
+                  <Tab key="3" title="Chuyển khoản" isDisabled={true}>
                     <Card shadow={"sm"}>
                       <CardBody>
                         <p>Thanh toán thông qua chuyển khoản ngân hàng:</p>

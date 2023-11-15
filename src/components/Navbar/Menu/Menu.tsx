@@ -136,6 +136,37 @@ export function Menu(): ReactElement {
             </Link>
           </NavbarMenuItem>
         ))}
+        <Divider />
+        {data !== undefined ? (
+          <Dropdown>
+            <DropdownTrigger>
+              <Avatar name={data?.name} className={"w-[24px] h-[24px]"} />
+            </DropdownTrigger>
+            <DropdownMenu aria-label="Static Actions">
+              <DropdownItem key="profile">{data?.name}</DropdownItem>
+              <DropdownItem key="promo">Khuyến mãi</DropdownItem>
+              <DropdownItem key="point">
+                Điểm thưởng : {data?.point}
+              </DropdownItem>
+              <DropdownItem
+                key="logout"
+                className="text-danger"
+                color="danger"
+                onClick={() => {
+                  localStorageServices.remove(accessTokenLocalStorageKey);
+                  navigate.replace("/login");
+                }}
+              >
+                Đăng xuất
+              </DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        ) : (
+          <div className={"flex gap-2"}>
+            <CiUser onClick={() => navigate.push("/login")} />
+            Đăng nhập
+          </div>
+        )}
       </NavbarMenu>
     </Navbar>
   );

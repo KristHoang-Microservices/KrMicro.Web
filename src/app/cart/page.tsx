@@ -7,11 +7,32 @@ import { CartItem } from "@/models/cart.model";
 import { CartItemRender } from "@/components/Cart/CartItem";
 import { accentFont } from "@/constants";
 import { Input } from "@nextui-org/input";
+import { useCheckOrder } from "@/api/orders/hooks/orders";
+import { useEffect, useState } from "react";
+import { CheckOrderResponse } from "@/api/orders/hooks/response/checkOrder.response";
 
 export default function CartPage() {
   const cart = useAppSelector(cartSelector);
   const router = useRouter();
 
+  const { trigger: checkOrder, isMutating: checking } = useCheckOrder();
+
+  const [checkData, setCheckData] = useState<CheckOrderResponse>();
+
+  useEffect(() => {
+    (async () => {
+      const res = await checkOrder({
+        orderDetails: cart.items.map((item) => ({
+          productId: item.productId,
+          amount: item.amount,
+          sizeCode: item.sizeCode,
+        })),
+      });
+      setCheckData(res);
+    })();
+  }, [cart.items, checkOrder]);
+
+  console.log(checkData?.data, cart.items);
   return (
     <div className={"px-4 py-2"}>
       <div className={"flex gap-2 items-center w-full"}>
@@ -66,6 +87,13 @@ export default function CartPage() {
                   key={`CartItem ${index}`}
                   item={item}
                   index={index}
+                  isLacking={
+                    checkData?.data?.find(
+                      (val) =>
+                        val.productId === parseInt(`${item.productId}`) &&
+                        val.sizeCode === item.sizeCode,
+                    ) !== undefined
+                  }
                 />
               ))}
             </div>
@@ -93,8 +121,8 @@ export default function CartPage() {
                 {(cart.total * 0.08).toLocaleString()} đ
               </p>
             </div>
-            <div className={"flex gap-2"}>
-              <Input placeholder={"Mã giảm giá"} />
+            <div className={"flex gap-2 items-center relative"}>
+              <Input placeholder={"Mã giảm giá"} size={"sm"} />
               <Button>Áp dụng</Button>
             </div>
             <Divider className={"my-4"} />
@@ -113,9 +141,13 @@ export default function CartPage() {
               size={"lg"}
               color={"primary"}
               className={"my-6"}
-              onClick={() => router.push("/orders/pay")}
+              isLoading={checking}
+              isDisabled={!checkData?.isSuccess}
+              onClick={async () => {
+                if (checkData?.isSuccess) router.push("/orders/pay");
+              }}
             >
-              Thanh toán
+              {checking ? "Đang kiểm tra" : "Thanh toán"}
             </Button>
           </div>
         </div>

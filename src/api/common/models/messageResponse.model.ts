@@ -1,3 +1,5 @@
-export type MessageResponse = {
+export type MessageResponse<TData = {}> = {
   message: string;
+  data?: TData;
+  isSuccess: boolean;
 };

@@ -11,6 +11,7 @@ import { ProductSize } from "@/api/masterData/models";
 import toast from "react-hot-toast";
 import { useAppDispatch } from "@/store/hooks";
 import { cart } from "@/store/slices/cartStore.slice";
+import { Badge } from "@nextui-org/badge";
 
 interface PageProps {
   params: {
@@ -117,38 +118,84 @@ export default function ProductDetailPage({ params }: PageProps): ReactElement {
                   đ
                 </Heading>
               </div>
-              <div className={"flex gap-2 "}>
-                <Button
-                  variant={"bordered"}
-                  color={"primary"}
-                  size={"lg"}
-                  className={"text-md"}
-                  onClick={() => {
-                    dispatch(
-                      cart.actions.insert({
-                        productId: params.id,
-                        sizeCode:
-                          data?.productSizes?.at(sizeSelected)?.size.sizeCode ??
-                          "",
-                        amount: 1,
-                        product: data,
-                        size: data?.productSizes[sizeSelected]?.size,
-                        price: data?.productSizes[sizeSelected]?.price ?? 0,
-                      }),
-                    );
-                    toast.success("Thêm vào giỏ hàng gồi á!");
-                  }}
+              <div className={"flex gap-2"}>
+                <Badge
+                  content={"Hết hàng"}
+                  color={"warning"}
+                  isInvisible={
+                    (data?.productSizes?.at(sizeSelected)?.stock ?? -1) > 0
+                  }
                 >
-                  Thêm vào giỏ
-                </Button>
-                <Button
-                  variant={"solid"}
-                  color={"primary"}
-                  size={"lg"}
-                  className={"text-white text-md"}
+                  <Button
+                    variant={"bordered"}
+                    color={"primary"}
+                    size={"lg"}
+                    className={"text-md"}
+                    isDisabled={
+                      (data?.productSizes?.at(sizeSelected)?.stock ?? -1) <= 0
+                    }
+                    onClick={() => {
+                      if (
+                        (data?.productSizes?.at(sizeSelected)?.stock ?? -1) > 0
+                      ) {
+                        dispatch(
+                          cart.actions.insert({
+                            productId: params.id,
+                            sizeCode:
+                              data?.productSizes?.at(sizeSelected)?.size
+                                .sizeCode ?? "",
+                            amount: 1,
+                            product: data,
+                            size: data?.productSizes[sizeSelected]?.size,
+                            price: data?.productSizes[sizeSelected]?.price ?? 0,
+                          }),
+                        );
+                        toast.success("Thêm vào giỏ hàng gồi á!");
+                      }
+                    }}
+                  >
+                    Thêm vào giỏ
+                  </Button>
+                </Badge>
+                <Badge
+                  content={"Hết hàng"}
+                  color={"warning"}
+                  isInvisible={
+                    (data?.productSizes?.at(sizeSelected)?.stock ?? -1) > 0
+                  }
                 >
-                  Mua ngay
-                </Button>
+                  <Button
+                    variant={"solid"}
+                    color={"primary"}
+                    size={"lg"}
+                    className={"text-white text-md"}
+                    isDisabled={
+                      (data?.productSizes?.at(sizeSelected)?.stock ?? -1) <= 0
+                    }
+                    onClick={() => {
+                      if (
+                        (data?.productSizes?.at(sizeSelected)?.stock ?? -1) > 0
+                      ) {
+                        dispatch(
+                          cart.actions.insert({
+                            productId: params.id,
+                            sizeCode:
+                              data?.productSizes?.at(sizeSelected)?.size
+                                .sizeCode ?? "",
+                            amount: 1,
+                            product: data,
+                            size: data?.productSizes[sizeSelected]?.size,
+                            price: data?.productSizes[sizeSelected]?.price ?? 0,
+                          }),
+                        );
+
+                        router.push("/cart");
+                      }
+                    }}
+                  >
+                    Mua ngay
+                  </Button>
+                </Badge>
               </div>
             </div>
           </div>
