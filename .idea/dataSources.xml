@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
+    <data-source source="LOCAL" name="KrMicro Orders" uuid="a19e1719-8f55-455b-ac6d-841b327959d0">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://ep-dry-flower-08762324.ap-southeast-1.aws.neon.tech/KrMicro.Orders?user=khanhworktime&amp;password=BWmOlJchM2C0&amp;sslmode=require</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="KrMicro MasterData" uuid="40fbbb2a-8497-487a-b6f9-d53e26f49cbd">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://ep-dry-flower-08762324.ap-southeast-1.aws.neon.tech/KrMicro.MasterData?user=khanhworktime&amp;password=BWmOlJchM2C0&amp;sslmode=require</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+    <data-source source="LOCAL" name="KrMicro Identity" uuid="cbcbc835-2a8a-4651-b902-35565529a152">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <configured-by-url>true</configured-by-url>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://ep-dry-flower-08762324.ap-southeast-1.aws.neon.tech/KrMicro.Orders?user=khanhworktime&amp;password=BWmOlJchM2C0&amp;sslmode=require</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
+  </component>
+</project>
