@@ -7,9 +7,19 @@ import { Heading } from "@/components/Heading";
 import { ProductVerticalCarousel } from "@/components/Product/VerticalCarousel";
 import { useGetAllBrand } from "@/api/masterData/hooks/brand/useGetAllBrand";
 import { Link } from "@nextui-org/link";
+import { useEffect } from "react";
+import { localStorageServices } from "@/service";
+import { accessTokenLocalStorageKey } from "@/constants";
+import { useGetProfile } from "@/api/identity/hooks/customer";
 
 export default function Home() {
   const { data: brandList, isLoading } = useGetAllBrand();
+  const { data } = useGetProfile();
+  useEffect(() => {
+    if (data === undefined) {
+      localStorageServices.remove(accessTokenLocalStorageKey);
+    }
+  }, [data]);
 
   return (
     <>

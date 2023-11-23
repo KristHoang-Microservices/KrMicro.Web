@@ -30,7 +30,9 @@ export default function LoginPage() {
   useEffect(() => {
     if (localStorageServices.get(accessTokenLocalStorageKey) !== null)
       router.replace("/");
-    else history.replaceState(null, "", "/login");
+    else {
+      history.replaceState(null, "", "/login");
+    }
   }, [router]);
 
   async function submitLogin(data: LoginRequest | SignupRequest) {

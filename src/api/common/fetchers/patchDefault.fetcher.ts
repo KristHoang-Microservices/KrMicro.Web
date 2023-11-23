@@ -2,6 +2,7 @@ import { baseApi } from "@/api/common/constants/base.api";
 import { localStorageServices } from "@/service";
 import { FetcherResponse } from "swr/_internal";
 import { AxiosResponse } from "axios";
+import { accessTokenLocalStorageKey } from "@/constants";
 
 export const patchDefaultFetcher = async <TData, TResponse>(
   apiUrl: string,
@@ -19,5 +20,8 @@ export const patchDefaultFetcher = async <TData, TResponse>(
     },
   );
 
+  if (res.status === 401) {
+    localStorageServices.remove(accessTokenLocalStorageKey);
+  }
   return res.data;
 };
