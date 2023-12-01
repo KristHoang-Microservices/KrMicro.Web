@@ -17,10 +17,10 @@ export function WardSelect({
 
   return (
     <Autocomplete<Ward>
-      label={"Xã / Thị trấn"}
+      label={"Phường / Xã"}
       defaultItems={data?.wards ?? []}
       labelPlacement={"outside"}
-      placeholder={"Chọn xã / thị trấn"}
+      placeholder={"Chọn phường / xã"}
       size={"md"}
       selectedKey={value}
       isDisabled={districtId == undefined}
