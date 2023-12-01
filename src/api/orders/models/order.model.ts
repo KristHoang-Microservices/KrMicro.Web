@@ -4,8 +4,8 @@ import { OrderDetail } from "@/api/orders/models/orderDetail.model";
 
 export interface Order extends Audit, Tracking {
   id: number;
-  orderData: string;
-  totalAmount: number;
+  orderDate: string;
+  total: number;
   orderStatus: OrderStatus;
   deliveryInformationId: number;
   note?: string;

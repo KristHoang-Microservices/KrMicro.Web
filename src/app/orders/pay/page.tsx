@@ -24,6 +24,9 @@ import { localStorageServices } from "@/service";
 import { DeliveryInformationForm } from "@/components/DeliveryInformation";
 import { HiCheck, HiPencilAlt, HiX } from "react-icons/hi";
 import { DeliveryInformation } from "@/api/orders/models";
+import { CitySelect } from "@/components/CitySelect";
+import { DistrictSelect } from "@/components/DistrictSelect";
+import { WardSelect } from "@/components/WardSelect";
 
 export default function OrderPayPage(): ReactElement {
   const cart = useAppSelector(cartSelector);
@@ -54,6 +57,7 @@ export default function OrderPayPage(): ReactElement {
     formState: { errors },
     reset,
     setValue,
+    watch,
   } = useForm<CreateDeliveryInformationRequest>({
     resolver: yupResolver<CreateDeliveryInformationRequest>(
       createDeliveryInformationSchema,
@@ -270,6 +274,21 @@ export default function OrderPayPage(): ReactElement {
               </div>
               <div className={"col-span-2 font-semibold"}>
                 <p>Địa chỉ nhận hàng</p>
+              </div>
+              <div className={"col-span-2 flex gap-4"}>
+                <CitySelect
+                  onSelected={(cityId) => setValue("cityId", cityId)}
+                />
+                <DistrictSelect
+                  cityId={watch("cityId")}
+                  onSelected={(districtId) =>
+                    setValue("districtId", districtId)
+                  }
+                />
+                <WardSelect
+                  districtId={watch("districtId")}
+                  onSelected={(wardId) => setValue("wardId", wardId)}
+                />
               </div>
               <div className={"col-span-2"}>
                 <Textarea

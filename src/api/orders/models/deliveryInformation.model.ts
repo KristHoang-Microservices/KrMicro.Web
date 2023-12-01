@@ -7,4 +7,7 @@ export interface DeliveryInformation extends Audit, Tracking {
   phone: string;
   customerName: string;
   customerId: number;
+  cityId: number;
+  districtId: number;
+  wardId: number;
 }
