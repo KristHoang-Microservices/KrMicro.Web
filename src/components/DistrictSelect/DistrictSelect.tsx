@@ -4,16 +4,20 @@ import { useGetCityDetail } from "@/api/address/hooks";
 import { District } from "@/api/address/models";
 
 interface DistrictSelectProps {
-  onSelected: (districtId: number) => void;
+  onSelected: (districtId?: number) => void;
+  defaultValue?: number;
   cityId?: number;
 }
 
 export function DistrictSelect({
   onSelected,
   cityId,
+  defaultValue,
 }: DistrictSelectProps): ReactElement {
   const { data } = useGetCityDetail({ code: cityId ?? -1 });
-  const [value, setValue] = useState<string | number | null>(null);
+  const [value, setValue] = useState<string | number | null | undefined>(
+    defaultValue,
+  );
 
   return (
     <Autocomplete<District>
@@ -24,9 +28,9 @@ export function DistrictSelect({
       size={"md"}
       selectedKey={value}
       isDisabled={cityId == undefined}
-      onSelectionChange={(val: Key) => {
-        setValue(val.valueOf() as number);
-        onSelected(val.valueOf() as number);
+      onSelectionChange={(val?: Key) => {
+        setValue((val?.valueOf() as number) ?? undefined);
+        onSelected((val?.valueOf() as number) ?? undefined);
       }}
     >
       {(district: District) => (

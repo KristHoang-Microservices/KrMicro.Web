@@ -58,6 +58,7 @@ export default function OrderPayPage(): ReactElement {
     reset,
     setValue,
     watch,
+    resetField,
   } = useForm<CreateDeliveryInformationRequest>({
     resolver: yupResolver<CreateDeliveryInformationRequest>(
       createDeliveryInformationSchema,
@@ -277,17 +278,33 @@ export default function OrderPayPage(): ReactElement {
               </div>
               <div className={"col-span-2 flex gap-4"}>
                 <CitySelect
-                  onSelected={(cityId) => setValue("cityId", cityId)}
+                  onSelected={(cityId) => {
+                    if (cityId === undefined) {
+                      resetField("cityId");
+                      return;
+                    }
+                    setValue("cityId", cityId);
+                  }}
                 />
                 <DistrictSelect
                   cityId={watch("cityId")}
-                  onSelected={(districtId) =>
-                    setValue("districtId", districtId)
-                  }
+                  onSelected={(districtId) => {
+                    if (districtId === undefined) {
+                      resetField("districtId");
+                      return;
+                    }
+                    setValue("districtId", districtId);
+                  }}
                 />
                 <WardSelect
                   districtId={watch("districtId")}
-                  onSelected={(wardId) => setValue("wardId", wardId)}
+                  onSelected={(wardId) => {
+                    if (wardId === undefined) {
+                      resetField("wardId");
+                      return;
+                    }
+                    setValue("wardId", wardId);
+                  }}
                 />
               </div>
               <div className={"col-span-2"}>

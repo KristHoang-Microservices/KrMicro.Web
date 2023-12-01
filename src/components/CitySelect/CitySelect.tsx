@@ -4,32 +4,29 @@ import { useGetCityList } from "@/api/address/hooks";
 import { City } from "@/api/address/models";
 
 interface CitySelectProps {
-  onSelected: (cityId: number) => void;
+  onSelected: (cityId?: number) => void;
 }
 
 export function CitySelect({ onSelected }: CitySelectProps): ReactElement {
   const { data } = useGetCityList();
+  const [value, setValue] = useState<string | number | null | undefined>(null);
 
-  const [value, setValue] = useState<string | number | null>(null);
-
-  return data !== undefined ? (
+  return (
     <Autocomplete<City>
       label={"Tỉnh / Thành phố"}
-      defaultItems={data}
+      defaultItems={data ?? []}
       labelPlacement={"outside"}
       placeholder={"Chọn tỉnh / thành phố"}
       size={"md"}
       selectedKey={value}
-      onSelectionChange={(val: Key) => {
-        setValue(val.valueOf() as number);
-        onSelected(val.valueOf() as number);
+      onSelectionChange={(val?: Key) => {
+        setValue((val?.valueOf() as number) ?? undefined);
+        onSelected((val?.valueOf() as number) ?? undefined);
       }}
     >
       {(city: City) => (
         <AutocompleteItem key={city.code}>{city.name}</AutocompleteItem>
       )}
     </Autocomplete>
-  ) : (
-    <></>
   );
 }
