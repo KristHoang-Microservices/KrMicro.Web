@@ -1,6 +1,7 @@
 import { Audit, Tracking } from "@/api/common/models";
 import { OrderStatus } from "@/api/orders/models/enum";
 import { OrderDetail } from "@/api/orders/models/orderDetail.model";
+import { Promo } from "@/api/orders/models/promo.model";
 
 export interface Order extends Audit, Tracking {
   id: number;
@@ -10,4 +11,6 @@ export interface Order extends Audit, Tracking {
   deliveryInformationId: number;
   note?: string;
   orderDetails: OrderDetail[];
+  promoId?: number;
+  promo?: Promo;
 }

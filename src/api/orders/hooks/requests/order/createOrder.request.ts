@@ -6,5 +6,6 @@ export interface CreateOrderRequest {
     amount: number;
     sizeCode: string;
   }[];
+  promoId?: number;
   note?: string;
 }

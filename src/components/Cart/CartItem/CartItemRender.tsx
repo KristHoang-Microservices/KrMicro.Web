@@ -23,7 +23,6 @@ export function CartItemRender({
 }: CartItemProps): ReactElement {
   const { data: product } = useGetDetailProduct({ id: item.productId });
   const dispatch = useAppDispatch();
-  console.log(isLacking);
   return (
     <div className={"grid grid-cols-8 gap-2"}>
       <div className={"col-span-4"}>

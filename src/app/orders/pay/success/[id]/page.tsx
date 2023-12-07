@@ -4,10 +4,14 @@ import ConfettiIcon from "@/assets/svg/confetti.svg";
 import { Divider, Image } from "@nextui-org/react";
 import { Heading } from "@/components/Heading";
 import Confetti from "react-dom-confetti";
-import { accentFont, confettiConfig } from "@/constants";
+import { accentFont, cartLocalStorageKey, confettiConfig } from "@/constants";
 import { useGetOrder } from "@/api/orders/hooks/orders";
 import { User } from "@nextui-org/user";
 import { useGetProductsByIds } from "@/api/masterData/hooks/product/useGetProductsByIds";
+import { AppliedPromo } from "@/components/AppliedPromo";
+import { useAppDispatch } from "@/store/hooks";
+import { localStorageServices } from "@/service";
+import { remove } from "@/store/slices/cartStore.slice";
 
 interface PageProps {
   params: {
@@ -20,15 +24,22 @@ export default function SuccessPaid({ params: { id } }: PageProps) {
   const { data: orderedProducts } = useGetProductsByIds({
     ids: order?.orderDetails.map((x) => x.productId) ?? [],
   });
+
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    localStorageServices.remove(cartLocalStorageKey);
+    dispatch(remove);
+  }, [dispatch]);
+
   useEffect(() => {
     setPopConfetti(true);
   }, [pop]);
 
   return (
-    <div className={"flex flex-row gap-4"}>
+    <div className={"flex flex-col md:flex-row gap-4"}>
       <div
         className={
-          "flex flex-col gap-2 w-full h-[60vh] justify-center items-center"
+          "flex flex-col gap-2 w-full h-[60vh] justify-center items-center text-center"
         }
       >
         <Confetti config={confettiConfig} active={pop} />
@@ -40,7 +51,7 @@ export default function SuccessPaid({ params: { id } }: PageProps) {
         <p>Cảm ơn bạn đã lựa chọn August Perfume</p>
         <p>Xin vui lòng giữ điện thoại để xác nhận đơn hàng</p>
       </div>
-      <div className={"rounded-xl bg-white shadow w-[40vw]"}>
+      <div className={"rounded-xl bg-white shadow w-full md:w-[40vw]"}>
         <div className={"w-full text-center"}>
           <Heading className={"text-lg my-4"}>Danh sách sản phẩm</Heading>
           <div className={"p-2 w-full "}>
@@ -85,7 +96,11 @@ export default function SuccessPaid({ params: { id } }: PageProps) {
               })}
             </div>
             <Divider />
-            <div className={"col-span-2 rounded-md w-full my-6"}>
+            <div
+              className={
+                "col-span-2 rounded-md w-full my-6 flex flex-col gap-2"
+              }
+            >
               <div className={"flex justify-between gap-2"}>
                 <p className={"uppercase"}>Tạm tính</p>
                 <p className={"font-semibold " + accentFont.className}>
@@ -100,14 +115,14 @@ export default function SuccessPaid({ params: { id } }: PageProps) {
                   Miễn phí
                 </p>
               </div>
-              <div className={"flex justify-between gap-2"}>
-                <p className={"uppercase"}>VAT 8%</p>
-                <p
-                  className={"font-semibold text-green " + accentFont.className}
-                >
-                  {((order?.total ?? 0) * 0.08).toLocaleString()} đ
-                </p>
-              </div>
+              {order != undefined &&
+                order.promo !== undefined &&
+                order.promo !== null && (
+                  <div className={"flex flex-col items-start gap-1 w-full"}>
+                    <p className={"uppercase"}>Giảm giá</p>
+                    <AppliedPromo promoCode={order.promo?.code} />
+                  </div>
+                )}
               <Divider className={"my-4"} />
               <div className={"flex justify-between gap-2"}>
                 <p className={"uppercase text-xl"}>Tổng tiền</p>
@@ -116,11 +131,7 @@ export default function SuccessPaid({ params: { id } }: PageProps) {
                     "font-semibold text-green text-2xl " + accentFont.className
                   }
                 >
-                  {(
-                    (order?.total ?? 0) * 0.08 +
-                    (order?.total ?? 0)
-                  ).toLocaleString()}{" "}
-                  đ
+                  {(order?.total ?? 0).toLocaleString()} đ
                 </p>
               </div>
             </div>

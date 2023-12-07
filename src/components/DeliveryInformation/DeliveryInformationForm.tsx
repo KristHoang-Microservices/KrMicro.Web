@@ -22,6 +22,9 @@ import {
 import toast from "react-hot-toast";
 import { useDeleteDeliveryInformation } from "@/api/orders/hooks/deliveryInformation/useDeleteDeliveryInformation";
 import { Status } from "@/models";
+import { CitySelect } from "@/components/CitySelect";
+import { DistrictSelect } from "@/components/DistrictSelect";
+import { WardSelect } from "@/components/WardSelect";
 
 interface ModalProps {
   isOpen: boolean;
@@ -41,6 +44,9 @@ export const DeliveryInformationForm = ({
     handleSubmit,
     formState: { errors },
     reset,
+    resetField,
+    watch,
+    setValue,
   } = useForm<CreateDeliveryInformationRequest>({
     resolver: yupResolver(createDeliveryInformationSchema),
   });
@@ -97,7 +103,7 @@ export const DeliveryInformationForm = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size={"lg"}>
+    <Modal isOpen={isOpen} onOpenChange={onOpenChange} size={"3xl"}>
       <ModalContent>
         {(onClose) => (
           <form onSubmit={handleSubmit(onSubmit)}>
@@ -148,6 +154,37 @@ export const DeliveryInformationForm = ({
               </div>
               <div className={"col-span-2 font-semibold"}>
                 <p>Địa chỉ nhận hàng</p>
+              </div>
+              <div className={"col-span-2 flex gap-4"}>
+                <CitySelect
+                  onSelected={(cityId) => {
+                    if (cityId === undefined) {
+                      resetField("cityId");
+                      return;
+                    }
+                    setValue("cityId", cityId);
+                  }}
+                />
+                <DistrictSelect
+                  cityId={watch("cityId")}
+                  onSelected={(districtId) => {
+                    if (districtId === undefined) {
+                      resetField("districtId");
+                      return;
+                    }
+                    setValue("districtId", districtId);
+                  }}
+                />
+                <WardSelect
+                  districtId={watch("districtId")}
+                  onSelected={(wardId) => {
+                    if (wardId === undefined) {
+                      resetField("wardId");
+                      return;
+                    }
+                    setValue("wardId", wardId);
+                  }}
+                />
               </div>
               <div className={"col-span-2"}>
                 <Textarea

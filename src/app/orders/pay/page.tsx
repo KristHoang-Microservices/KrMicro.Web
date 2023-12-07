@@ -27,6 +27,11 @@ import { DeliveryInformation } from "@/api/orders/models";
 import { CitySelect } from "@/components/CitySelect";
 import { DistrictSelect } from "@/components/DistrictSelect";
 import { WardSelect } from "@/components/WardSelect";
+import {
+  useCheckVnPayTransaction,
+  useCreateVnPayPayment,
+} from "@/api/orders/hooks/transaction";
+import { AppliedPromo } from "@/components/AppliedPromo";
 
 export default function OrderPayPage(): ReactElement {
   const cart = useAppSelector(cartSelector);
@@ -50,6 +55,28 @@ export default function OrderPayPage(): ReactElement {
 
   const { trigger: createOrderTrigger, isMutating: postingOrder } =
     useCreateOrder();
+
+  const {
+    trigger: createVnPayTransaction,
+    isMutating: creatingVnPayTransaction,
+  } = useCreateVnPayPayment();
+
+  const [toCheckTransactionId, setCheckTransactionId] = useState<number>();
+
+  const {
+    data: checkVnPayTransaction,
+    isLoading: checkingVnPayTransaction,
+    error,
+  } = useCheckVnPayTransaction(toCheckTransactionId);
+
+  useEffect(() => {
+    if (checkVnPayTransaction !== undefined) {
+      toast.success("Đã đặt hàng thành công!");
+      localStorageServices.remove(cartLocalStorageKey);
+      dispatch(remove);
+      router.push("/orders/pay/success/" + checkVnPayTransaction.orderId, {});
+    }
+  }, [checkVnPayTransaction, dispatch, router]);
 
   const {
     register,
@@ -85,12 +112,31 @@ export default function OrderPayPage(): ReactElement {
         amount: item.amount,
         sizeCode: item.sizeCode,
       })),
+      promoId: cart?.promo?.id,
     });
-    if (orderPlaced !== null && orderPlaced.isSuccess) {
-      toast.success("Đã đặt hàng thành công!");
-      localStorageServices.remove(cartLocalStorageKey);
-      dispatch(remove);
-      router.push("/orders/pay/success/" + orderPlaced.data.id, {});
+    switch (paymentMethod) {
+      case 1:
+        if (orderPlaced !== null && orderPlaced.isSuccess) {
+          toast.success("Đã đặt hàng thành công!");
+          localStorageServices.remove(cartLocalStorageKey);
+          dispatch(remove);
+          router.push("/orders/pay/success/" + orderPlaced.data.id, {});
+        }
+        break;
+      case 3:
+        if (orderPlaced !== null && orderPlaced.isSuccess) {
+          const vnpayPaymentCreated = await createVnPayTransaction({
+            orderId: orderPlaced.data.id,
+            paymentMethodId: 3,
+            phoneNumber: data.phone,
+          });
+
+          if (vnpayPaymentCreated.paymentUrl) {
+            router.push(vnpayPaymentCreated.paymentUrl);
+          }
+
+          setCheckTransactionId(vnpayPaymentCreated.transactionId);
+        }
     }
   };
 
@@ -278,6 +324,7 @@ export default function OrderPayPage(): ReactElement {
               </div>
               <div className={"col-span-2 flex gap-4"}>
                 <CitySelect
+                  isDisabled={isUsingSaved}
                   onSelected={(cityId) => {
                     if (cityId === undefined) {
                       resetField("cityId");
@@ -285,8 +332,10 @@ export default function OrderPayPage(): ReactElement {
                     }
                     setValue("cityId", cityId);
                   }}
+                  defaultValue={deliveryData?.cityId}
                 />
                 <DistrictSelect
+                  isDisabled={isUsingSaved}
                   cityId={watch("cityId")}
                   onSelected={(districtId) => {
                     if (districtId === undefined) {
@@ -295,8 +344,10 @@ export default function OrderPayPage(): ReactElement {
                     }
                     setValue("districtId", districtId);
                   }}
+                  defaultValue={deliveryData?.districtId}
                 />
                 <WardSelect
+                  isDisabled={isUsingSaved}
                   districtId={watch("districtId")}
                   onSelected={(wardId) => {
                     if (wardId === undefined) {
@@ -305,6 +356,7 @@ export default function OrderPayPage(): ReactElement {
                     }
                     setValue("wardId", wardId);
                   }}
+                  defaultValue={deliveryData?.wardId}
                 />
               </div>
               <div className={"col-span-2"}>
@@ -341,22 +393,17 @@ export default function OrderPayPage(): ReactElement {
                       </CardBody>
                     </Card>
                   </Tab>
-                  <Tab key="2" title="Momo" isDisabled={true}>
+                  {/*<Tab key="2" title="Momo" isDisabled={true}>*/}
+                  {/*  <Card shadow={"sm"}>*/}
+                  {/*    <CardBody>*/}
+                  {/*      Thanh toán thông qua dịch vụ Thanh toán trực tuyến Momo*/}
+                  {/*    </CardBody>*/}
+                  {/*  </Card>*/}
+                  {/*</Tab>*/}
+                  <Tab key="3" title="VnPay">
                     <Card shadow={"sm"}>
                       <CardBody>
-                        Thanh toán thông qua dịch vụ Thanh toán trực tuyến Momo
-                      </CardBody>
-                    </Card>
-                  </Tab>
-                  <Tab key="3" title="Chuyển khoản" isDisabled={true}>
-                    <Card shadow={"sm"}>
-                      <CardBody>
-                        <p>Thanh toán thông qua chuyển khoản ngân hàng:</p>
-                        <p>Ngân hàng: Vietcombank (VCB)</p>
-                        <p>Người thụ hưởng: Võ Chí Khánh</p>
-                        <p>Tài khoản: 1019912984</p>
-                        <p>Nội dung chuyển khoản:</p>
-                        <p className={"font-semibold"}>APDH01 11132023</p>
+                        <p>Nhấn Tiếp tục để thanh toán thông qua VnPay</p>
                       </CardBody>
                     </Card>
                   </Tab>
@@ -366,9 +413,15 @@ export default function OrderPayPage(): ReactElement {
                 <Button
                   type={"submit"}
                   color={"primary"}
-                  isLoading={postingDelivery || postingOrder}
+                  isLoading={
+                    postingDelivery ||
+                    postingOrder ||
+                    checkingVnPayTransaction ||
+                    error !== undefined ||
+                    creatingVnPayTransaction
+                  }
                 >
-                  Tiến hành tạo đơn
+                  {paymentMethod === 1 ? "Tiến hành tạo đơn" : "Tiếp tục"}
                 </Button>
               </div>
             </form>
@@ -393,12 +446,12 @@ export default function OrderPayPage(): ReactElement {
               Miễn phí
             </p>
           </div>
-          <div className={"flex justify-between gap-2"}>
-            <p className={"uppercase"}>VAT 8%</p>
-            <p className={"font-semibold text-green " + accentFont.className}>
-              {(cart.total * 0.08).toLocaleString()} đ
-            </p>
-          </div>
+          {cart.promo !== undefined && (
+            <div>
+              <p className={"uppercase mb-2"}>Giảm giá</p>
+              <AppliedPromo promoCode={cart.promo.code} />
+            </div>
+          )}
           <Divider className={"my-4"} />
           <div className={"flex justify-between gap-2"}>
             <p className={"uppercase text-xl"}>Tổng tiền</p>
@@ -407,7 +460,7 @@ export default function OrderPayPage(): ReactElement {
                 "font-semibold text-green text-2xl " + accentFont.className
               }
             >
-              {(cart.total * 0.08 + cart.total).toLocaleString()} đ
+              {(cart.total - (cart?.promo?.value ?? 0)).toLocaleString()} đ
             </p>
           </div>
         </div>

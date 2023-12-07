@@ -1,4 +1,4 @@
-import { Ward } from "./ward.model.ts";
+import { Ward } from "./ward.model";
 
 export interface District {
   name: string;

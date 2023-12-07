@@ -1,4 +1,5 @@
 import { Product, Size } from "@/api/masterData/models";
+import { Promo } from "@/api/orders/models/promo.model";
 
 export interface CartItem {
   productId: number;
@@ -12,4 +13,5 @@ export interface CartItem {
 export interface Cart {
   items: CartItem[];
   total: number;
+  promo?: Promo;
 }

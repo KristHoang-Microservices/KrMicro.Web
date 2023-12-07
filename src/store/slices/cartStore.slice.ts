@@ -3,10 +3,11 @@ import { Cart, CartItem } from "@/models/cart.model";
 import { localStorageServices } from "@/service";
 import { cartLocalStorageKey } from "@/constants";
 import { RootState } from "@/store/store";
+import { Promo } from "@/api/orders/models/promo.model";
 
 const initialState: Cart = localStorageServices.get<Cart>(
   cartLocalStorageKey,
-) ?? { items: [], total: 0 };
+) ?? { items: [], total: 0, promo: undefined };
 
 export const cart = createSlice({
   name: "cart",
@@ -73,10 +74,19 @@ export const cart = createSlice({
       );
       localStorageServices.set<Cart>(cartLocalStorageKey, state);
     },
+    applyPromo: (state, action: PayloadAction<Promo>) => {
+      state.promo = action.payload;
+      localStorageServices.set<Cart>(cartLocalStorageKey, state);
+    },
+    clearPromo: (state) => {
+      state.promo = undefined;
+      localStorageServices.set<Cart>(cartLocalStorageKey, state);
+    },
   },
 });
 
-export const { remove, reset, insert, update } = cart.actions;
+export const { remove, reset, insert, update, applyPromo, clearPromo } =
+  cart.actions;
 
 export const cartSelector = (state: RootState) => state.cartReducer;
 export default cart.reducer;

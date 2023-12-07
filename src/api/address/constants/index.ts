@@ -1,1 +1,1 @@
-export * as addressUrl from "./addressBaseUrl.ts";
+export * as addressUrl from "./addressBaseUrl";

@@ -5,7 +5,7 @@ import { Order } from "@/api/orders/models";
 
 export function useGetOrder({ request }: { request: { orderId: number } }) {
   return useSWR(
-    orderUrl.GET_DETAIL(request?.orderId ?? -1),
+    request.orderId !== -1 ? orderUrl.GET_DETAIL(request.orderId) : null,
     getDetailDataFetcher<Order>,
     {
       onError: () => {

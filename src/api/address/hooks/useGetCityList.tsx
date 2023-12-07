@@ -4,5 +4,7 @@ import { getDefaultFetcher } from "@/api/common/fetchers";
 import { City } from "@/api/address/models";
 
 export function useGetCityList() {
-  return useSWR(addressUrl.getListCity, getDefaultFetcher<City[]>);
+  return useSWR(addressUrl.getListCity, (url) =>
+    getDefaultFetcher<City[]>(url, { isRequiredToken: false }),
+  );
 }

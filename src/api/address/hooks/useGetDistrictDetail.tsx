@@ -6,7 +6,7 @@ import { GetDetailDistrictRequest } from "@/api/address/requests";
 
 export function useGetDistrictDetail(request: GetDetailDistrictRequest) {
   return useSWR(
-    addressUrl.getDetailDistrict(request.code),
-    getDefaultFetcher<District>,
+    request.code !== -1 ? addressUrl.getDetailDistrict(request.code) : null,
+    (url) => getDefaultFetcher<District>(url, { isRequiredToken: false }),
   );
 }

@@ -1,2 +1,2 @@
-export * from "./getDetailDistrict.request.ts";
-export * from "./getDetailCity.request.ts";
+export * from "./getDetailDistrict.request";
+export * from "./getDetailCity.request";

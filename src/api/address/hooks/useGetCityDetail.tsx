@@ -6,7 +6,7 @@ import { GetDetailCityRequest } from "@/api/address/requests";
 
 export function useGetCityDetail(request: GetDetailCityRequest) {
   return useSWR(
-    addressUrl.getDetailCity(request.code),
-    getDefaultFetcher<City>,
+    request.code !== -1 ? addressUrl.getDetailCity(request.code) : null,
+    (url) => getDefaultFetcher<City>(url, { isRequiredToken: false }),
   );
 }

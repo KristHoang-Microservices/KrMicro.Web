@@ -1,24 +1,21 @@
 import { baseApi } from "@/api/common/constants/base.api";
 import { localStorageServices } from "@/service";
 import { accessTokenLocalStorageKey } from "@/constants";
+import qs from "qs";
 
-export const getDefaultFetcher = async <TData>(
+export const getParamsFetcher = async <TData>(
   apiUrl: string,
-  config?: {
-    isRequiredToken?: boolean;
-  },
+  params?: unknown,
 ): Promise<TData> => {
-  let accessToken = undefined;
-
-  if (config?.isRequiredToken !== false) {
-    accessToken =
-      localStorageServices.get(accessTokenLocalStorageKey) ?? undefined;
-  }
+  const accessToken =
+    localStorageServices.get(accessTokenLocalStorageKey) ?? undefined;
   const res = await baseApi.get<TData>(apiUrl, {
     headers: {
       Authorization:
         accessToken !== undefined ? `Bearer ${accessToken}` : undefined,
     },
+    params,
+    paramsSerializer: (p) => qs.stringify(p),
   });
 
   if (res.status === 401) {

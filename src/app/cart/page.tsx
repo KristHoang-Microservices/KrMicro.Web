@@ -1,19 +1,23 @@
 "use client";
-import { useAppSelector } from "@/store/hooks";
-import { cartSelector } from "@/store/slices/cartStore.slice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { cartSelector, clearPromo } from "@/store/slices/cartStore.slice";
 import { Button, Divider } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { CartItem } from "@/models/cart.model";
+import { Cart, CartItem } from "@/models/cart.model";
 import { CartItemRender } from "@/components/Cart/CartItem";
-import { accentFont } from "@/constants";
+import { accentFont, cartLocalStorageKey } from "@/constants";
 import { Input } from "@nextui-org/input";
 import { useCheckOrder } from "@/api/orders/hooks/orders";
 import { useEffect, useState } from "react";
 import { CheckOrderResponse } from "@/api/orders/hooks/response/checkOrder.response";
+import { useCheckPromo } from "@/api/orders/hooks/promo";
+import { AppliedPromo } from "@/components/AppliedPromo";
+import { localStorageServices } from "@/service";
 
 export default function CartPage() {
   const cart = useAppSelector(cartSelector);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const { trigger: checkOrder, isMutating: checking } = useCheckOrder();
 
@@ -32,7 +36,39 @@ export default function CartPage() {
     })();
   }, [cart.items, checkOrder]);
 
-  console.log(checkData?.data, cart.items);
+  const [promoCode, setPromoCode] = useState<string>("");
+
+  const [requestCheckPromo, setRequestCheckPromo] = useState<
+    string | undefined
+  >(undefined);
+
+  const [requestDetailPromo, setRequestDetailPromo] = useState<
+    string | undefined
+  >(undefined);
+
+  const { data: checkedPromoCode, isLoading: checkingPromo } =
+    useCheckPromo(requestCheckPromo);
+
+  useEffect(() => {
+    if (checkedPromoCode) {
+      setRequestDetailPromo(promoCode);
+    }
+  }, [checkedPromoCode, promoCode]);
+
+  useEffect(() => {
+    const promoLocal =
+      localStorageServices.get<Cart>(cartLocalStorageKey)?.promo;
+    if (promoLocal !== undefined) {
+      setRequestCheckPromo(promoLocal.code);
+    }
+  }, [requestCheckPromo]);
+
+  const onClearPromo = () => {
+    setPromoCode("");
+    setRequestCheckPromo("");
+    dispatch(clearPromo());
+  };
+
   return (
     <div className={"px-4 py-2"}>
       <div className={"flex gap-2 items-center w-full"}>
@@ -106,7 +142,7 @@ export default function CartPage() {
             <div className={"flex justify-between gap-2"}>
               <p className={"uppercase"}>Tạm tính</p>
               <p className={"font-semibold " + accentFont.className}>
-                {cart.total.toLocaleString()} đ
+                {cart.total?.toLocaleString()} đ
               </p>
             </div>
             <div className={"flex justify-between gap-2"}>
@@ -115,16 +151,38 @@ export default function CartPage() {
                 Miễn phí
               </p>
             </div>
-            <div className={"flex justify-between gap-2"}>
-              <p className={"uppercase"}>VAT 8%</p>
-              <p className={"font-semibold text-green " + accentFont.className}>
-                {(cart.total * 0.08).toLocaleString()} đ
-              </p>
-            </div>
             <div className={"flex gap-2 items-center relative"}>
-              <Input placeholder={"Mã giảm giá"} size={"sm"} />
-              <Button>Áp dụng</Button>
+              <Input
+                placeholder={"Mã giảm giá"}
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value)}
+                isDisabled={checkedPromoCode}
+              />
+              {!checkedPromoCode ? (
+                <Button
+                  onClick={() => {
+                    setRequestCheckPromo(promoCode);
+                  }}
+                  isLoading={checkingPromo}
+                  isDisabled={checkedPromoCode}
+                  size={"md"}
+                >
+                  Áp dụng
+                </Button>
+              ) : (
+                <Button
+                  onClick={onClearPromo}
+                  isLoading={checkingPromo}
+                  color={"danger"}
+                  size={"md"}
+                >
+                  Hủy mã
+                </Button>
+              )}
             </div>
+            {checkedPromoCode && requestCheckPromo !== undefined && (
+              <AppliedPromo promoCode={requestCheckPromo} />
+            )}
             <Divider className={"my-4"} />
             <div className={"flex justify-between gap-2"}>
               <p className={"uppercase text-xl"}>Tổng tiền</p>
@@ -133,7 +191,7 @@ export default function CartPage() {
                   "font-semibold text-green text-2xl " + accentFont.className
                 }
               >
-                {(cart.total * 0.08 + cart.total).toLocaleString()} đ
+                {(cart.total - (cart?.promo?.value ?? 0)).toLocaleString()} đ
               </p>
             </div>
             <Button
