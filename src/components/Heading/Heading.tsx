@@ -7,8 +7,8 @@ export interface HeadingProps {
 }
 export function Heading({ children, className }: HeadingProps): ReactElement {
   return (
-    <h1 className={accentFont.className + " font-bold " + className}>
+    <p className={accentFont.className + " font-bold " + className}>
       {children}
-    </h1>
+    </p>
   );
 }

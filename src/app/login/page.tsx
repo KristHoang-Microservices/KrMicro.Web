@@ -65,7 +65,7 @@ export default function LoginPage() {
         }
       >
         <Link href={"/"}>
-          <Image src={Logo.src} alt={""} width={125} />
+          <Image src={Logo.src} alt={"August Perfume"} width={125} />
         </Link>
         <div className={"w-full"}>
           <Heading className={"text-center mb-4 text-xl"}>

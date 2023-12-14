@@ -111,6 +111,7 @@ export function SlideShow({
         <motion.img
           key={page}
           src={items[imageIndex].img}
+          alt={"Banner"}
           custom={direction}
           variants={variants}
           initial="enter"
