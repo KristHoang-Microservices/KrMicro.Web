@@ -32,6 +32,7 @@ import {
   useCreateVnPayPayment,
 } from "@/api/orders/hooks/transaction";
 import { AppliedPromo } from "@/components/AppliedPromo";
+import { PromoUnit } from "@/api/orders/models/enum";
 
 export default function OrderPayPage(): ReactElement {
   const cart = useAppSelector(cartSelector);
@@ -460,7 +461,15 @@ export default function OrderPayPage(): ReactElement {
                 "font-semibold text-green text-2xl " + accentFont.className
               }
             >
-              {(cart.total - (cart?.promo?.value ?? 0)).toLocaleString()} đ
+              {(
+                cart.total -
+                (cart?.promo
+                  ? cart?.promo?.promoUnit === PromoUnit.Raw
+                    ? cart?.promo?.value ?? 0
+                    : cart.total * (1 - (cart?.promo?.value ?? 0))
+                  : 0)
+              ).toLocaleString()}{" "}
+              đ
             </p>
           </div>
         </div>
